@@ -13,6 +13,8 @@ const int gridHeight = 50;
 const int gridWidth = 60;
 const int INITIAL_SIZE = 5;
 const double PGenerateFruit = .01;
+const double GGenerateFruit = .006;
+const double GenerateBomb = .008;
 
 bool bw = false;
 int headX = 25;
@@ -45,11 +47,25 @@ void DrawElement(double i, double j, char element) {
 		glColor3f(0, 1.0, 0);
 		DrawCircle(x+r*.15, y+r*.9, r*.4, 10);
 		break;
+	case 'G':
+		glColor3f(.8, .8, .45);
+		DrawCircle(x, y, r, 10);
+		glColor3f(0, 1.0, 0);
+		DrawCircle(x + r * .15, y + r * .9, r*.4, 10);
+		break;
+	case 'B':
+		glColor3f(0, 0, 0);
+		DrawCircle(x, y, r, 10);
+		glColor3f(0, 1.0, 0);
+		DrawCircle(x + r * .15, y + r * .9, r * .4, 10);
+		break;
 	case ' ':
 		break;
 	default:
 		break;
 	}
+
+
 }
 
 void update() {
@@ -62,6 +78,23 @@ void update() {
 			board[x][y] = 'A';
 		}
 	}
+	//Generate Gold Fruit...
+	else if (rand() / (double)RAND_MAX < GGenerateFruit) {
+		int x = rand() % gridWidth;
+		int y = rand() % gridHeight;
+		if (board[x][y] != 'S' && board[x][y] != 's') {
+			board[x][y] = 'G';
+		}
+	}
+
+	else if (rand() / (double)RAND_MAX < GenerateBomb) {
+		int x = rand() % gridWidth;
+		int y = rand() % gridHeight;
+		if (board[x][y] != 'S' && board[x][y] != 's') {
+			board[x][y] = 'B';
+		}
+	}
+
 	//Find out where the head will be...
 	switch (direction) {
 		case 'N': headY++; break;
@@ -89,7 +122,10 @@ void update() {
 	switch (board[headX][headY])
 	{
 		case 'A': grow += 4; break;
+		case 'G': grow += 8; break;
+		case 'B': grow -= 6; break;
 		case 'S': case 's': gameOver = true; break;
+		case 'Wall': gameOver = true; break;
 	}
 
 	//Move the snake's head.
@@ -106,7 +142,9 @@ void draw() {
 			DrawElement(i, j, board[i][j]);
 		}
 	}
-	Sleep(100);
+
+
+	Sleep(35);
 	if (!gameOver)
 		update();
 }
